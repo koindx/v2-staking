@@ -1,0 +1,127 @@
+syntax = "proto3";
+package staking;
+import "koinos/options.proto";
+
+/*
+* Objects
+*/
+message str {
+  string value = 1;
+}
+message uint32 {
+  uint32 value = 1;
+}
+message uint64 {
+  uint64 value = 1 [jstype = JS_STRING];
+}
+message boole {
+  bool value = 1;
+}
+message empty_object {
+}
+
+message balance_object {
+  uint64 value = 1 [jstype = JS_STRING];
+  uint64 reward_debt = 2 [jstype = JS_STRING];  // Reward debt. See explanation below.
+}
+
+message pool_object {
+  // address
+  bytes token_deposit = 1 [(koinos.btype) = ADDRESS]; // address of the token that is given as a deposit
+  bytes token_reward = 2 [(koinos.btype) = ADDRESS]; // address of the token that is given as a reward
+
+  // booleans
+  bool is_active = 3;
+  bool is_initialize = 4;
+
+  // configs
+  uint64 block_reward = 5 [jstype = JS_STRING]; // amount reward for block
+
+  // times
+  uint64 block_start = 6 [jstype = JS_STRING]; // block starting staking
+  uint64 block_end = 7 [jstype = JS_STRING]; // block ending staking
+
+  // PoolInfo
+  uint64 last_reward_block = 8 [jstype = JS_STRING]; // Last block number that Rewards distribution occurs.
+  uint64 reward_per_share = 9 [jstype = JS_STRING]; // Accumulated Rewards per share
+}
+
+/*
+* RPC calls
+*/
+
+// @description get pool
+// @read-only true
+// @result pool_object
+message get_pool_arguments {}
+
+// @description get pool
+// @read-only true
+// @result balance_object
+message balance_of_arguments {
+  bytes owner = 1 [(koinos.btype) = ADDRESS];
+}
+
+// @description initialize pool
+// @read-only false
+// @result empty_object
+message initialize_arguments {
+  bytes token_deposit = 1 [(koinos.btype) = ADDRESS];       // deposit token
+  bytes token_reward = 2 [(koinos.btype) = ADDRESS];        // reward token
+  uint64 block_reward = 3 [jstype = JS_STRING];             // amount reward for block
+  uint64 block_start = 4 [jstype = JS_STRING];              // block starting staking
+  uint64 block_end = 5 [jstype = JS_STRING];                // block ending staking
+}
+
+// @description update pool
+// @read-only false
+// @result empty_object
+message update_arguments {
+  uint64 block_reward = 1 [jstype = JS_STRING];             // amount reward for block
+  uint64 block_start = 2 [jstype = JS_STRING];              // block starting staking
+  uint64 block_end = 3 [jstype = JS_STRING];                // block ending staking
+}
+
+
+// @description deposit tokens in pool
+// @read-only false
+// @result empty_object
+message deposit_arguments {
+  bytes from = 1 [(koinos.btype) = ADDRESS];
+  uint64 value = 2 [jstype = JS_STRING];
+}
+
+// @description withdraw tokens in pool
+// @read-only false
+// @result empty_object
+message withdraw_arguments {
+  bytes from = 1 [(koinos.btype) = ADDRESS];
+  uint64 value = 2 [jstype = JS_STRING];
+}
+
+// @description withdraw rewards of pool
+// @read-only false
+// @result empty_object
+message claim_pending_reward_arguments {
+  bytes from = 1 [(koinos.btype) = ADDRESS];
+}
+
+// @description View function to see pending Reward on frontend.
+// @read-only true
+// @result uint64
+message get_pending_reward_arguments {
+  bytes owner = 1 [(koinos.btype) = ADDRESS];
+}
+
+/*
+* Events
+*/
+
+message deposit_event {
+  bytes to = 1 [(koinos.btype) = ADDRESS];
+  uint64 value = 2 [jstype = JS_STRING];
+}
+message withdraw_event {
+  bytes from = 1 [(koinos.btype) = ADDRESS];
+  uint64 value = 2 [jstype = JS_STRING];
+}
