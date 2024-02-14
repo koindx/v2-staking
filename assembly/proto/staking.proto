@@ -55,7 +55,7 @@ message pool_object {
 // @result pool_object
 message get_pool_arguments {}
 
-// @description get pool
+// @description get balance of user in pool
 // @read-only true
 // @result balance_object
 message balance_of_arguments {
@@ -82,6 +82,12 @@ message update_arguments {
   uint64 block_end = 3 [jstype = JS_STRING];                // block ending staking
 }
 
+// @description withdraw without caring about rewards. EMERGENCY ONLY.
+// @read-only false
+// @result empty_object
+message emergency_withdraw_arguments {
+  bytes from = 1 [(koinos.btype) = ADDRESS];
+}
 
 // @description deposit tokens in pool
 // @read-only false
@@ -122,6 +128,10 @@ message deposit_event {
   uint64 value = 2 [jstype = JS_STRING];
 }
 message withdraw_event {
+  bytes from = 1 [(koinos.btype) = ADDRESS];
+  uint64 value = 2 [jstype = JS_STRING];
+}
+message emergency_withdraw_event {
   bytes from = 1 [(koinos.btype) = ADDRESS];
   uint64 value = 2 [jstype = JS_STRING];
 }

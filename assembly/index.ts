@@ -49,6 +49,16 @@ export function main(): i32 {
       break;
     }
 
+    case 0xf9d54899: {
+      const args = Protobuf.decode<ProtoNamespace.emergency_withdraw_arguments>(
+        contractArgs.args,
+        ProtoNamespace.emergency_withdraw_arguments.decode
+      );
+      const res = c.emergency_withdraw(args);
+      retbuf = Protobuf.encode(res, ProtoNamespace.empty_object.encode);
+      break;
+    }
+
     case 0xc3b9fb78: {
       const args = Protobuf.decode<ProtoNamespace.deposit_arguments>(
         contractArgs.args,
