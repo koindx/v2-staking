@@ -102,7 +102,7 @@ export class Staking {
       System.require(tokenDeposit.transfer(args.from, this.contractId, args.value), "STAKING: FAIL_DEPOSIT_TRANSFER", 1)
 
       // update value
-      user.value += args.value
+      user.value = SafeMath.add(user.value, args.value);
       user_amount = u128.fromU64(user.value);
     }
     // update user data
@@ -136,7 +136,7 @@ export class Staking {
     }
     if(args.value > 0) {
       // update values
-      user.value -= args.value;
+      user.value = SafeMath.sub(user.value, args.value);
       user_amount = u128.fromU64(user.value);
       // transfer
       let tokenDeposit = new Token(pool.token_deposit);
