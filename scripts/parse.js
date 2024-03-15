@@ -1,4 +1,4 @@
-const abi = require('../abi/core-abi.json')
+const abi = require('../abi/staking-abi.json')
 const path = require('path');
 const fs = require('fs');
 
@@ -28,7 +28,7 @@ async function main() {
     methods[methodName] = method;
   })
   abi.methods = methods;
-  fs.writeFileSync(path.resolve(__dirname, '../abi/core-abi.json'), JSON.stringify(abi, null, 2));
+  fs.writeFileSync(path.resolve(__dirname, '../abi/staking-abi.json'), JSON.stringify(abi, null, 2));
 }
 
 main()

@@ -24,7 +24,8 @@ async function main() {
   });
 
   const { operation, transaction, receipt } = await newContract.deploy({
-    abi: fs.readFileSync(path.resolve(__dirname, '../abi/staking.abi')).toString()
+    abi: fs.readFileSync(path.resolve(__dirname, '../abi/staking.abi')).toString(),
+    rcLimit: "2000000000"
   });
   console.log(transaction)
   console.log(receipt)
