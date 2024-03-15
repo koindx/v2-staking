@@ -1,7 +1,12 @@
-import { System, Storage, SafeMath, u128, authority, Token, Protobuf, value, Arrays, Crypto } from "@koinos/sdk-as";
+import { System, Storage, SafeMath, u128, Base58, Token, Protobuf, value, Arrays, Crypto } from "@koinos/sdk-as";
 import { staking } from "./proto/staking";
 import { Spaces } from "./Spaces";
 import { Constants } from "./Constants";
+
+const ListNameServices = [
+  "koin",
+  "vhp"
+]
 
 export class Staking {
   contractId: Uint8Array;
@@ -93,12 +98,12 @@ export class Staking {
         user.reward_debt = SafeMath.div(SafeMath.mul(user_amount, pool_reward_per_share), Constants.TOKEN_DECIMALS).toU64();
         // update data u128
         user_reward_debt = u128.fromU64(user.reward_debt);
-        let tokenRewards = new Token(pool.token_deposit);
+        let tokenRewards = new Token(this._getTokenAddress(pool.token_deposit));
         System.require(tokenRewards.transfer(this.contractId, args.from, pending.toU64()), "STAKING: FAIL_REWARD_TRANSFER", 1);
       }
     }
     if(args.value > 0) {
-      let tokenDeposit = new Token(pool.token_deposit);
+      let tokenDeposit = new Token(this._getTokenAddress(pool.token_deposit));
       System.require(tokenDeposit.transfer(args.from, this.contractId, args.value), "STAKING: FAIL_DEPOSIT_TRANSFER", 1)
 
       // update value
@@ -131,7 +136,7 @@ export class Staking {
     let pool_reward_per_share = u128.fromU64(pool.reward_per_share);
     let pending = SafeMath.sub(SafeMath.div(SafeMath.mul(user_amount, pool_reward_per_share), Constants.TOKEN_DECIMALS), user_reward_debt);
     if(pending > u128.Zero) {
-      let tokenRewards = new Token(pool.token_reward);
+      let tokenRewards = new Token(this._getTokenAddress(pool.token_reward));
       System.require(tokenRewards.transfer(this.contractId, args.from, pending.toU64()), "STAKING: FAIL_REWARD_TRANSFER", 1);
     }
     if(args.value > 0) {
@@ -139,7 +144,7 @@ export class Staking {
       user.value = SafeMath.sub(user.value, args.value);
       user_amount = u128.fromU64(user.value);
       // transfer
-      let tokenDeposit = new Token(pool.token_deposit);
+      let tokenDeposit = new Token(this._getTokenAddress(pool.token_deposit));
       System.require(tokenDeposit.transfer(this.contractId, args.from, args.value), "STAKING: FAIL_DEPOSIT_TRANSFER", 1);
     }
     // update user data
@@ -165,7 +170,7 @@ export class Staking {
     System.require(this.checkSigner(args.from), "STAKING: FAIL_SIGNER", 1)
 
     // trasfer balance
-    let tokenDeposit = new Token(pool.token_deposit);
+    let tokenDeposit = new Token(this._getTokenAddress(pool.token_deposit));
     System.require(tokenDeposit.transfer(this.contractId, args.from, user.value), "STAKING: FAIL_WITHDRAW_TRANSFER", 1)
 
     // update state
@@ -198,7 +203,7 @@ export class Staking {
     if(pending > u128.Zero) {
       user.reward_debt = SafeMath.div(SafeMath.mul(user_amount, pool_reward_per_share), Constants.TOKEN_DECIMALS).toU64();
       // transferRewards
-      let tokenRewards = new Token(pool.token_reward);
+      let tokenRewards = new Token(this._getTokenAddress(pool.token_reward));
       System.require(tokenRewards.transfer(this.contractId, args.from, pending.toU64()), "FAIL_REWARD_TRANSFER", 1);
     }
     // update state
@@ -210,7 +215,7 @@ export class Staking {
   get_pending_reward(args: staking.get_pending_reward_arguments): staking.uint64 {
     let user = this.balances.get(args.owner)!;
     let pool = this.pool.get()!;
-    let tokenDeposit = new Token(pool.token_deposit);
+    let tokenDeposit = new Token(this._getTokenAddress(pool.token_deposit));
     // u128
     let user_amount = u128.fromU64(user.value);
     let user_reward_debt = u128.fromU64(user.reward_debt);
@@ -239,7 +244,7 @@ export class Staking {
     if( block_height < pool.last_reward_block ) {
       return pool;
     }
-    let tokenDeposit = new Token(pool.token_deposit);
+    let tokenDeposit = new Token(this._getTokenAddress(pool.token_deposit));
     let supply_value = tokenDeposit.balanceOf(this.contractId)
     let supply = u128.fromU64( supply_value );
 
@@ -294,5 +299,12 @@ export class Staking {
     } else {
       return SafeMath.sub(pool.block_end, _from);
     }
+  }
+
+  private _getTokenAddress(_tokenString: string): Uint8Array {
+    if(ListNameServices.indexOf(_tokenString) != -1) {
+      return System.getContractAddress(_tokenString)
+    }
+    return Base58.decode(_tokenString);
   }
 }

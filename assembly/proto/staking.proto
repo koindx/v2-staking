@@ -27,8 +27,8 @@ message balance_object {
 
 message pool_object {
   // address
-  bytes token_deposit = 1 [(koinos.btype) = ADDRESS]; // address of the token that is given as a deposit
-  bytes token_reward = 2 [(koinos.btype) = ADDRESS]; // address of the token that is given as a reward
+  string token_deposit = 1; // address of the token that is given as a deposit
+  string token_reward = 2; // address of the token that is given as a reward
 
   // booleans
   bool is_active = 3;
@@ -66,8 +66,8 @@ message balance_of_arguments {
 // @read-only false
 // @result empty_object
 message initialize_arguments {
-  bytes token_deposit = 1 [(koinos.btype) = ADDRESS];       // deposit token
-  bytes token_reward = 2 [(koinos.btype) = ADDRESS];        // reward token
+  string token_deposit = 1;       // deposit token
+  string token_reward = 2;        // reward token
   uint64 block_reward = 3 [jstype = JS_STRING];             // amount reward for block
   uint64 block_start = 4 [jstype = JS_STRING];              // block starting staking
   uint64 block_end = 5 [jstype = JS_STRING];                // block ending staking
