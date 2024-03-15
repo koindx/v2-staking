@@ -36,6 +36,7 @@
     "test": "koinos-sdk-as-cli run-tests",
     "hash": "node scripts/hash.js",
     "deploy": "node scripts/deploy.js",
-    "parse": "node scripts/parse.js"
+    "parse": "node scripts/parse.js",
+    "initialize": "node scripts/initialize.js"
   }
 }
