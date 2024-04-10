@@ -180,8 +180,10 @@ export class Staking {
     System.require(tokenDeposit.transfer(this.contractId, args.from, user.value), "STAKING: FAIL_WITHDRAW_TRANSFER", 1)
 
     // update state
+    pool.supply_deposit = SafeMath.sub(pool.supply_deposit, user.value);
     user.value = 0;
     user.reward_debt = 0;
+    this.pool.put(pool);
     this.balances.put(args.from, user);
 
     // event
