@@ -108,6 +108,7 @@ export class Staking {
 
       // update value
       user.value = SafeMath.add(user.value, args.value);
+      pool.supply_deposit = SafeMath.add(pool.supply_deposit, args.value);
       user_amount = u128.fromU64(user.value);
     }
     // update user data
@@ -142,6 +143,7 @@ export class Staking {
     if(args.value > 0) {
       // update values
       user.value = SafeMath.sub(user.value, args.value);
+      pool.supply_deposit = SafeMath.sub(pool.supply_deposit, args.value);
       user_amount = u128.fromU64(user.value);
       // transfer
       let tokenDeposit = new Token(this._getTokenAddress(pool.token_deposit));
@@ -215,15 +217,13 @@ export class Staking {
   get_pending_reward(args: staking.get_pending_reward_arguments): staking.uint64 {
     let user = this.balances.get(args.owner)!;
     let pool = this.pool.get()!;
-    let tokenDeposit = new Token(this._getTokenAddress(pool.token_deposit));
     // u128
     let user_amount = u128.fromU64(user.value);
     let user_reward_debt = u128.fromU64(user.reward_debt);
     let pool_reward_per_share = u128.fromU64(pool.reward_per_share);
     let pool_block_reward = u128.fromU64(pool.block_reward);
     // supply
-    let supply_value = tokenDeposit.balanceOf(this.contractId);
-    let supply = u128.fromU64( supply_value );
+    let supply = u128.fromU64( pool.supply_deposit );
     // get block
     let head_info = System.getHeadInfo();
     let head_block = head_info.head_topology!.height;
@@ -244,10 +244,7 @@ export class Staking {
     if( block_height < pool.last_reward_block ) {
       return pool;
     }
-    let tokenDeposit = new Token(this._getTokenAddress(pool.token_deposit));
-    let supply_value = tokenDeposit.balanceOf(this.contractId)
-    let supply = u128.fromU64( supply_value );
-
+    let supply = u128.fromU64( pool.supply_deposit );
     if(supply == u128.Zero) {
       pool.last_reward_block = block_height;
       return pool;

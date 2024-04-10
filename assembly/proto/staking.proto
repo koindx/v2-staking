@@ -44,6 +44,7 @@ message pool_object {
   // PoolInfo
   uint64 last_reward_block = 8 [jstype = JS_STRING]; // Last block number that Rewards distribution occurs.
   uint64 reward_per_share = 9 [jstype = JS_STRING]; // Accumulated Rewards per share
+  uint64 supply_deposit = 10 [jstype = JS_STRING]; // total tokens deposit in pool
 }
 
 /*
