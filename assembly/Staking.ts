@@ -88,6 +88,8 @@ export class Staking {
   deposit(args: staking.deposit_arguments): staking.empty_object {    
     let user = this.balances.get(args.from)!;
     let pool = this.update_pool(this.pool.get()!);
+    System.require(this.checkSigner(args.from), "STAKING: FAIL_SIGNER", 1)
+
     // u128
     let user_amount = u128.fromU64(user.value);
     let user_reward_debt = u128.fromU64(user.reward_debt);
@@ -98,7 +100,7 @@ export class Staking {
         user.reward_debt = SafeMath.div(SafeMath.mul(user_amount, pool_reward_per_share), Constants.TOKEN_DECIMALS).toU64();
         // update data u128
         user_reward_debt = u128.fromU64(user.reward_debt);
-        let tokenRewards = new Token(this._getTokenAddress(pool.token_deposit));
+        let tokenRewards = new Token(this._getTokenAddress(pool.token_reward));
         System.require(tokenRewards.transfer(this.contractId, args.from, pending.toU64()), "STAKING: FAIL_REWARD_TRANSFER", 1);
       }
     }
@@ -131,6 +133,8 @@ export class Staking {
   withdraw(args: staking.withdraw_arguments): staking.empty_object {
     let user = this.balances.get(args.from)!;
     let pool = this.update_pool(this.pool.get()!);
+    System.require(this.checkSigner(args.from), "STAKING: FAIL_SIGNER", 1)
+
     // u128
     let user_amount = u128.fromU64(user.value);
     let user_reward_debt = u128.fromU64(user.reward_debt);
@@ -194,6 +198,7 @@ export class Staking {
   claim_pending_reward(args: staking.claim_pending_reward_arguments): staking.empty_object {
     let user = this.balances.get(args.from)!;
     let pool = this.update_pool(this.pool.get()!);
+    System.require(this.checkSigner(args.from), "STAKING: FAIL_SIGNER", 1)
     // check
     System.require(user.value > 0 , 'STAKING: NOT_BALANCE_IN_POOL', 1);
     // u128
@@ -281,11 +286,14 @@ export class Staking {
   }
 
   private checkSigner(signer: Uint8Array): bool {
-    const signers = this.getSigners();
+    let signers = this.getSigners();
+    let result = false
     for (let i = 0; i < signers.length; i += 1) {
-      if (Arrays.equal(signers[i], signer)) return true
+      if (Arrays.equal(signers[i], signer)) {
+        result = true;
+      }
     }
-    return false
+    return result
   }
   
   private getMultiplier(pool: staking.pool_object, _from: u64, _to: u64): u64 {
